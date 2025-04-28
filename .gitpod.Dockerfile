@@ -2,7 +2,7 @@ FROM ubuntu:20.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# ✅ Tambahkan semua dependensi lengkap
+# Install dependencies
 RUN apt update && apt install -y \
     wget curl git cmake clang build-essential \
     libgmp-dev libssl-dev libusb-1.0-0-dev \
@@ -10,17 +10,12 @@ RUN apt update && apt install -y \
     libboost-all-dev software-properties-common \
     python3 python3-pip libbz2-dev
 
-# ✅ Install EOSIO (nodeos, cleos)
-# Install EOSIO dari source (lebih stabil untuk Gitpod)
-RUN git clone --recursive https://github.com/EOSIO/eos.git && \
-    cd eos && \
-    git checkout v2.0.13 && \
-    ./scripts/eosio_build.sh && \
-    ./scripts/eosio_install.sh && \
-    cd .. && rm -rf eos
+# Install EOSIO.CDT (Compiler eosio-cpp)
+RUN git clone --recursive https://github.com/EOSIO/eosio.cdt && \
+    cd eosio.cdt && ./build.sh && cd build && make install
 
-# ✅ Install EOSIO.CDT (eosio-cpp)
-RUN wget https://github.com/EOSIO/eosio.cdt/releases/download/v1.8.1/eosio.cdt_1.8.1-1-ubuntu-20.04_amd64.deb && \
-    apt install -y ./eosio.cdt_1.8.1-1-ubuntu-20.04_amd64.deb && \
-    rm eosio.cdt_1.8.1-1-ubuntu-20.04_amd64.deb
+# Install EOSIO (nodeos, cleos) via .deb
+RUN wget https://github.com/EOSIO/eos/releases/download/v2.0.13/eosio_2.0.13-1-ubuntu-20.04_amd64.deb && \
+    apt install -y ./eosio_2.0.13-1-ubuntu-20.04_amd64.deb || apt --fix-broken install -y && \
+    rm eosio_2.0.13-1-ubuntu-20.04_amd64.deb
 
